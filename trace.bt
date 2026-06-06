@@ -1,0 +1,23 @@
+BEGIN {
+    printf("tracing for 12s...\n");
+}
+
+kprobe:rcu_preempt_ctxt_queue {
+    @ctxt_queue = count();
+}
+
+kprobe:rcu_exp_wait_wake {
+    @wait_wake = count();
+}
+
+kprobe:synchronize_rcu_expedited {
+    @sync_exp = count();
+}
+
+interval:s:12 {
+    printf("\n--- results ---\n");
+    print(@sync_exp);
+    print(@ctxt_queue);
+    print(@wait_wake);
+    exit();
+}
